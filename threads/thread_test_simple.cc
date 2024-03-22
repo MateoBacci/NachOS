@@ -12,28 +12,50 @@
 #include <string.h>
 
 
-/// Loop 10 times, yielding the CPU to another ready thread each iteration.
-///
-/// * `name` points to a string with a thread name, just for debugging
-///   purposes.
+#include "semaphore.hh"
 
-bool thread2Done = false;
+static const unsigned int numThreads = 4; // Cantidad de hilos extra a ejecutar
+static const char *threadNames[numThreads] = { "2nd", "3nd", "4nd", "5nd" };
+static bool threadsDone[numThreads]; // Indica que hilos han terminado la ejecucion
+
+#ifdef SEMAPHORE_TEST
+Semaphore* sem = new Semaphore("semaphore_1", 3);
+#endif
+
 void
-SimpleThread(void *name_)
+SimpleThread(void *arg_)
 {
 
     // If the lines dealing with interrupts are commented, the code will
     // behave incorrectly, because printf execution may cause race
     // conditions.
+    unsigned i = (unsigned long) arg_;
     for (unsigned num = 0; num < 10; num++) {
+        #ifdef SEMAPHORE_TEST
+        sem->P();
+        DEBUG('s', "\\\\ Thread `%s` realizo un P() al semaforo `%s`\n", currentThread->GetName(), sem->GetName());
+        #endif
         printf("*** Thread `%s` is running: iteration %u\n", currentThread->GetName(), num);
+        #ifdef SEMAPHORE_TEST
+        sem->V();
+        DEBUG('s', "// Thread `%s` realizo un V() al semaforo `%s`\n", currentThread->GetName(), sem->GetName());
+        #endif
         currentThread->Yield();
     }
-    if (strcmp(currentThread->GetName(),"2nd")==0) {
-	thread2Done = true;
+    
+    if (strcmp(currentThread->GetName(),"main") != 0) {
+      threadsDone[i] = true;
     }
     printf("!!! Thread `%s` has finished SimpleThread\n", currentThread->GetName());
  
+
+}
+
+static unsigned countThreadsDone() {
+  int done = 0;
+  for (unsigned i = 0; i < numThreads; i++)
+    done += threadsDone[i];
+  return done;
 }
 
 /// Set up a ping-pong between several threads.
@@ -43,15 +65,26 @@ SimpleThread(void *name_)
 void
 ThreadTestSimple()
 {
-    Thread *newThread = new Thread("2nd");
-    newThread->Fork(SimpleThread, NULL);
+    for (unsigned i = 0; i < numThreads; i++)
+      threadsDone[i] = false;
+
+    // Crear y ejecutar los hilos
+    for (unsigned i = 0; i < numThreads; i++) {
+      Thread *thread = new Thread(threadNames[i]);
+      thread->Fork(SimpleThread, (void*) (long) i); // Evitar errores de casteo
+    }
 
     //the "main" thread also executes the same function
     SimpleThread(NULL);
 
-   //Wait for the 2nd thread to finish if needed
-    while (!thread2Done) {
+    // Esperar al resto de hilos
+    while (countThreadsDone() < numThreads) {
         currentThread->Yield(); 
     }
+
+    #ifdef SEMAPHORE_TEST
+    delete sem;
+    #endif
+    
     printf("Test finished\n");
 }
