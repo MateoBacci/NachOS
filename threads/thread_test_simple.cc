@@ -43,12 +43,11 @@ SimpleThread(void *arg_)
         currentThread->Yield();
     }
     
+ 
     if (strcmp(currentThread->GetName(),"main") != 0) {
       threadsDone[i] = true;
     }
     printf("!!! Thread `%s` has finished SimpleThread\n", currentThread->GetName());
- 
-
 }
 
 static unsigned countThreadsDone() {

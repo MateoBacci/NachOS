@@ -29,5 +29,5 @@ class Channel{
 
         Semaphore *receiveSem, *senderSem;
 
-        Lock* senderLock; 
+        Lock *senderLock; 
 };

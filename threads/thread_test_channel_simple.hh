@@ -4,11 +4,11 @@
 /// All rights reserved.  See `copyright.h` for copyright notice and
 /// limitation of liability and disclaimer of warranty provisions.
 
-#ifndef NACHOS_THREADS_CHANNELTEST_RING__HH
-#define NACHOS_THREADS_CHANNELTEST_RING__HH
+#ifndef NACHOS_THREADS_CHANNELTEST_SIMPLE__HH
+#define NACHOS_THREADS_CHANNELTEST_SIMPLE__HH
 
 
-void ThreadTestChannelRing();
+void ThreadTestChannelSimple();
 
 
 #endif

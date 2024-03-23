@@ -3,12 +3,14 @@
 
 Channel::Channel(const char* debugname){
     name = debugname;
-    receiveSem = new Semaphore(NULL,0);
-    senderLock = new Lock(NULL);
+    receiveSem = new Semaphore("ReceiverSem",0);
+    senderSem = new Semaphore("SenderSem",0);
+    senderLock = new Lock("SenderLock");
 }
 
 Channel::~Channel(){
     delete receiveSem;
+    delete senderSem;
     delete senderLock;
 }
 
@@ -22,8 +24,9 @@ Channel::Send(int message){
     senderLock->Acquire();
     buffer = message;
     DEBUG('c',"Thread '%s' sent message '%d' through channel '%s'.\n",
-            currentThread->GetName(), buffer, name);
+          currentThread->GetName(), buffer, name);
     receiveSem->V();
+    currentThread->Yield();
     senderSem->P();
     senderLock->Release();
 }
