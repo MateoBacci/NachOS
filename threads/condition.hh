@@ -76,7 +76,11 @@ private:
 
     const char *name;
 
-    // Other needed fields are to be added here.
+    Lock* lock, *internalLock;
+
+    Semaphore* sem;
+
+    int threadCount;
 };
 
 

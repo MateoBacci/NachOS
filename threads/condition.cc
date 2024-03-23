@@ -16,6 +16,7 @@
 
 
 #include "condition.hh"
+#include "system.hh"
 
 
 /// Dummy functions -- so we can compile our later assignments.
@@ -23,12 +24,17 @@
 
 Condition::Condition(const char *debugName, Lock *conditionLock)
 {
-    // TODO
+    name = debugName;
+    lock = conditionLock;
+    internalLock = new Lock(NULL);
+    sem = new Semaphore(NULL,0);
+    threadCount = 0;
 }
 
 Condition::~Condition()
 {
-    // TODO
+    delete internalLock;
+    delete sem;
 }
 
 const char *
@@ -39,18 +45,39 @@ Condition::GetName() const
 
 void
 Condition::Wait()
-{
-    // TODO
+{   
+    internalLock->Acquire();
+    ASSERT(threadCount >= 0);
+    threadCount++;
+    internalLock->Release();
+    DEBUG('s',"Thread '%s' waiting on conditional variable '%s'\n", currentThread->GetName(),GetName());
+    sem->P();
 }
 
 void
 Condition::Signal()
 {
-    // TODO
+    internalLock->Acquire();
+    ASSERT(threadCount >= 0);
+    DEBUG('s',"Thread '%s' cast signal on conditional variable '%s'\n", currentThread->GetName(),GetName());
+    if(threadCount == 0) {
+        internalLock->Release();
+        return;
+    }
+    threadCount--;
+    sem->V();
+    internalLock->Release();
 }
 
 void
 Condition::Broadcast()
 {
-    // TODO
+    
+    internalLock->Acquire();
+    ASSERT(threadCount >= 0);
+    DEBUG('s',"Thread '%s' cast broadcast on conditional variable '%s'\n", currentThread->GetName(),GetName());
+    while (threadCount-- > 0){
+        sem->V();
+    }
+    internalLock->Release();
 }
