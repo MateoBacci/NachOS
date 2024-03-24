@@ -5,40 +5,43 @@
 #include <cstring>
 #include <iostream>
 
+static const int THREADS_NUMBER = 4;
+static const char *threadName[THREADS_NUMBER] = {"1st", "2nd", "3rd", "4th"};
+static bool done[THREADS_NUMBER];
 Channel *channel;
-static bool done[2];
 
-static void Echo(void *_a) {
+static void Communication(void *a) {
   int msg; 
-  if (!strcmp(currentThread->GetName(), "1st")) {
-    std::cout << "Thread " << currentThread->GetName() << " sending " << 1 << std::endl;
-    channel->Send(1);
+  int threadNumber = (unsigned long)a;
+  if (threadNumber <= 1) {
+    std::cout << "Thread '" << currentThread->GetName() << "' sending " << threadNumber << std::endl;
+    channel->Send(threadNumber);
     channel->Receive(&msg);
-    std::cout << "Thread " << currentThread->GetName() << " received " << msg << std::endl;
-    ASSERT(msg == 1);
-    done[0] = true;
+    std::cout << "Thread '" << currentThread->GetName() << "' received " << msg << std::endl;
   } else {
     channel->Receive(&msg);
-    std::cout << "Thread " << currentThread->GetName() << " received " << msg << std::endl;
-    std::cout << "Thread " << currentThread->GetName() << " sending " << msg << std::endl;
+    std::cout << "Thread '" << currentThread->GetName() << "' received " << msg << std::endl;
+    std::cout << "Thread '" << currentThread->GetName() << "' sending " << msg << std::endl;
     channel->Send(msg);
-    done[1] = true;
   }
+  done[threadNumber] = true;
 }
 
 void ThreadTestChannelSimple() {
-  done[0] = done[1] = false;
-  channel = new Channel("Channel");
-  Thread *t1 = new Thread("1st");
-  t1->Fork(Echo, (void *)NULL);
-  Thread *t2 = new Thread("2nd");
-  t2->Fork(Echo, (void *)NULL);
-  for (unsigned i = 0; i < 2; i++) {
-    while (!done[i]) {
-      currentThread->Yield();
+    channel = new Channel("Channel");
+    for (int i = 0; i < THREADS_NUMBER; i++) {
+        done[i] = false;
+        Thread *t = new Thread(threadName[i]);
+        ASSERT(t != NULL);
+        std::cout << "Thread '" << threadName[i] << "' created." << std::endl;
+        t->Fork(Communication, (void *)(unsigned long)i);
     }
-  }
-  delete channel;
+    for (unsigned i = 0; i < THREADS_NUMBER; i++) {
+      while (!done[i]) {
+        currentThread->Yield();
+      }
+    }
+    delete channel;
 }
 
 

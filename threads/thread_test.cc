@@ -35,7 +35,7 @@ static const Test TESTS[] = {
     { &ThreadTestGarden,   "garden",   "Ornamental garden" },
     { &ThreadTestGardenSem, "gardensem", "Ornamental garden with semaphores" },
     { &ThreadTestProdCons, "prodcons", "Producer/Consumer" },
-    { &ThreadTestChannelSimple, "channelsimple", "Simple channel echo" },
+    { &ThreadTestChannelSimple, "channelsimple", "Simple channel, double echo" },
     { &ThreadTestChannelRing, "channelring", "Channel Ring" }
 };
 static const unsigned NUM_TESTS = sizeof TESTS / sizeof TESTS[0];
