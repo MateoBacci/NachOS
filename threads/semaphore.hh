@@ -53,6 +53,9 @@ public:
     ///
     /// Both of them must be *atomic*.
     void P();
+
+    int TryP();
+
     void V();
 
 private:
