@@ -61,7 +61,7 @@ Consumer(void* _arg) {
 }
 
 void
-ThreadTestProdCons()
+ThreadTestProdConsSem()
 {
     char** consumerNames = new char*[NUM_CONSUMERS];
     char** producerNames = new char*[NUM_PRODUCERS];
@@ -91,13 +91,14 @@ ThreadTestProdCons()
     // No se llega nunca, pero queda bien ponerlo
     delete consumerSem;
     delete producerSem;
+
     for (unsigned i = 0; i < NUM_CONSUMERS; i++)
       delete consumerNames[i];
+    delete [] consumerNames;
 
     for (unsigned i = 0; i < NUM_PRODUCERS; i++)
       delete producerNames[i];
-
-    delete [] consumerNames;
     delete [] producerNames;
+
     delete queue;
 }
