@@ -72,11 +72,31 @@ Semaphore::P()
     interrupt->SetLevel(oldLevel);  // Re-enable interrupts.
 }
 
+/// Tries to decremente the semaphore value.
+///
+/// If the decrementation succeed returns 0
+/// If the value is 0, returns -1 instead of waiting.
+
+int
+Semaphore::TryP()
+{
+    IntStatus oldlevel = interrupt->SetLevel(INT_OFF);
+
+    if (value > 0){
+        value --;
+        interrupt->SetLevel(oldlevel);
+        return 0;
+    }
+    interrupt->SetLevel(oldlevel);
+    return -1;
+}
+
 /// Increment semaphore value, waking up a waiter if necessary.
 ///
 /// As with `P`, this operation must be atomic, so we need to disable
 /// interrupts.  `Scheduler::ReadyToRun` assumes that threads are disabled
 /// when it is called.
+
 void
 Semaphore::V()
 {
