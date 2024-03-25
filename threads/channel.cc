@@ -22,9 +22,8 @@ Channel::GetName(){
 void
 Channel::Send(int message){
     senderLock->Acquire();
-    buffer = message;
     DEBUG('c',"Thread '%s' sent message '%d' through channel '%s'.\n",
-          currentThread->GetName(), buffer, name);
+          currentThread->GetName(), message, name);
     receiveSem->V();
     currentThread->Yield();
     senderSem->P();

@@ -17,6 +17,7 @@
 #include "thread_test_simple.hh"
 #include "thread_test_channel_ring.hh"
 #include "thread_test_channel_simple.hh"
+#include "thread_test_smokers.hh"
 #include "lib/utility.hh"
 
 #include <stdio.h>
@@ -35,6 +36,7 @@ static const Test TESTS[] = {
     { &ThreadTestGarden,   "garden",   "Ornamental garden" },
     { &ThreadTestGardenSem, "gardensem", "Ornamental garden with semaphores" },
     { &ThreadTestProdCons, "prodcons", "Producer/Consumer" },
+    { &ThreadTestSmokers, "smokers", "Smokers test"},
     { &ThreadTestChannelSimple, "channelsimple", "Simple channel, double echo" },
     { &ThreadTestChannelRing, "channelring", "Channel Ring" }
 };

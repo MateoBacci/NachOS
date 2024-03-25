@@ -4,7 +4,6 @@
 
 #ifndef NACHOS_THREAD_CHANNEL_HH
 #define NACHOS_THREAD_CHANNEL_HH
-#endif
 
 #include "thread.hh"
 #include "semaphore.hh"
@@ -31,3 +30,5 @@ class Channel{
 
         Lock *senderLock; 
 };
+
+#endif
