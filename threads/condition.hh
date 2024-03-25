@@ -76,10 +76,9 @@ private:
 
     const char *name;
 
-    Lock* lock, *internalLock;
+    Lock *lock, *internalLock;
 
     Semaphore* sem;
-
     int threadCount;
 };
 

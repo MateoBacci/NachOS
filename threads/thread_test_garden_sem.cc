@@ -5,7 +5,7 @@
 /// limitation of liability and disclaimer of warranty provisions.
 
 
-#include "thread_test_garden.hh"
+#include "thread_test_garden_sem.hh"
 #include "system.hh"
 #include "semaphore.hh"
 
@@ -24,12 +24,14 @@ Turnstile(void *n_)
     unsigned *n = (unsigned *) n_;
 
     for (unsigned i = 0; i < ITERATIONS_PER_TURNSTILE; i++) {
-	sem->P();
+        sem->P();
         int temp = count;
         printf("Turnstile %u yielding with temp=%u.\n", *n, temp);
+        currentThread->Yield();
         printf("Turnstile %u back with temp=%u.\n", *n, temp);
         count = temp + 1;
-	sem->V();
+        sem->V();
+        currentThread->Yield();
     }
     printf("Turnstile %u finished. Count is now %u.\n", *n, count);
     done[*n] = true;
@@ -40,7 +42,7 @@ ThreadTestGardenSem()
 {
     //Launch a new thread for each turnstile 
     //(except one that will be run by the main thread)
-    sem = new Semaphore(NULL, 1);
+    sem = new Semaphore("garden semaphore", 1);
     char **names = new char*[NUM_TURNSTILES];
     unsigned *values = new unsigned[NUM_TURNSTILES];
     for (unsigned i = 0; i < NUM_TURNSTILES; i++) {
@@ -52,7 +54,6 @@ ThreadTestGardenSem()
         Thread *t = new Thread(names[i]);
         t->Fork(Turnstile, (void *) &(values[i]));
     }
-   
     // Wait until all turnstile threads finish their work.  `Thread::Join` is
     // not implemented at the beginning, therefore an ad-hoc workaround is
     // applied here.
@@ -66,10 +67,10 @@ ThreadTestGardenSem()
            count, ITERATIONS_PER_TURNSTILE * NUM_TURNSTILES);
 
     // Free all the memory
-    for (unsigned i = 0; i < NUM_TURNSTILES; i++) {
-	delete[] names[i];
-    }
-    delete []values;
-    delete []names;
+    for (unsigned i = 0; i < NUM_TURNSTILES; i++)
+      delete [] names[i];
+
+    delete [] values;
+    delete [] names;
     delete sem;
 }

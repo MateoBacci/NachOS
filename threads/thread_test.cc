@@ -14,6 +14,7 @@
 #include "thread_test_garden.hh"
 #include "thread_test_garden_sem.hh"
 #include "thread_test_prod_cons.hh"
+#include "thread_test_prod_cons_sem.hh"
 #include "thread_test_simple.hh"
 #include "thread_test_channel_ring.hh"
 #include "thread_test_channel_simple.hh"
@@ -32,13 +33,14 @@ typedef struct {
 } Test;
 
 static const Test TESTS[] = {
-    { &ThreadTestSimple,   "simple",   "Simple thread interleaving" },
-    { &ThreadTestGarden,   "garden",   "Ornamental garden" },
-    { &ThreadTestGardenSem, "gardensem", "Ornamental garden with semaphores" },
-    { &ThreadTestProdCons, "prodcons", "Producer/Consumer" },
-    { &ThreadTestSmokers, "smokers", "Smokers test"},
-    { &ThreadTestChannelSimple, "channelsimple", "Simple channel, double echo" },
-    { &ThreadTestChannelRing, "channelring", "Channel Ring" }
+    { &ThreadTestSimple,        "simple",              "Simple thread interleaving" },
+    { &ThreadTestGarden,        "garden",              "Ornamental garden" },
+    { &ThreadTestGardenSem,     "garden (sem)",        "Ornamental garden with semaphores" },
+    { &ThreadTestProdCons,      "prodcons (cond var)", "Producer/Consumer with semaphores" },
+    { &ThreadTestProdConsSem,   "prodcons (sem)",      "Producer/Consumer with condition variables" },
+    { &ThreadTestSmokers,       "smokers",             "Smokers test"},
+    { &ThreadTestChannelSimple, "channel (simple)",    "Simple channel, double echo" },
+    { &ThreadTestChannelRing,   "channel (ring)",      "Channel Ring" }
 };
 static const unsigned NUM_TESTS = sizeof TESTS / sizeof TESTS[0];
 

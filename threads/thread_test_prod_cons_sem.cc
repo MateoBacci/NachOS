@@ -5,7 +5,7 @@
 /// limitation of liability and disclaimer of warranty provisions.
 
 
-#include "thread_test_prod_cons.hh"
+#include "thread_test_prod_cons_sem.hh"
 #include "synch_list.hh"
 #include "system.hh"
 
@@ -18,17 +18,13 @@ static SynchList<Product> *queue;
 #define NUM_CONSUMERS 10
 #define QUEUE_SIZE 5
 
-#include "condition.hh"
+#include "semaphore.hh"
 
-static unsigned count = 0;
-static Lock *consumerLock;
-static Lock *producerLock;
-static Condition *consumeCond;
-static Condition *produceCond;
+static Semaphore *consumerSem;
+static Semaphore *producerSem;
 
 static void
 Produce(unsigned n) {
-  count++;
   queue->Append(n);
   printf("*** Producer `%s` writes %u\n", currentThread->GetName(), n);
 }
@@ -36,7 +32,6 @@ Produce(unsigned n) {
 static unsigned
 Consume() {
   unsigned n;
-  count--;
   n = queue->Pop();
   printf("*** Consumer `%s` reads %u\n", currentThread->GetName(), n);
   return n;
@@ -46,13 +41,10 @@ static void
 Producer(void* _arg) {
   unsigned *n = (unsigned*) _arg;
   for (;;) {
-    producerLock->Acquire();
-    while (count == QUEUE_SIZE)
-      produceCond->Wait();
+    producerSem->P();
     Produce(*n);
     currentThread->Yield();
-    consumeCond->Signal();
-    producerLock->Release();
+    consumerSem->V();
     currentThread->Yield();
   }
 }
@@ -60,27 +52,23 @@ Producer(void* _arg) {
 static void
 Consumer(void* _arg) {
   for (;;) {
-    consumerLock->Acquire();
-    while (count == 0)
-      consumeCond->Wait();
+    consumerSem->P();
+    currentThread->Yield();
     Consume();
-    produceCond->Signal();
-    consumerLock->Release();
+    producerSem->V();
     currentThread->Yield();
   }
 }
 
 void
-ThreadTestProdConsSem()
+ThreadTestProdCons()
 {
     char** consumerNames = new char*[NUM_CONSUMERS];
     char** producerNames = new char*[NUM_PRODUCERS];
     int* products = new int[NUM_PRODUCERS];
     queue = new SynchList<int>;
-    consumerLock = new Lock("Consumer");
-    producerLock = new Lock("Producer");
-    consumeCond = new Condition("Consumer", consumerLock);
-    produceCond = new Condition("Producer", producerLock);
+    consumerSem = new Semaphore("Consumer", 0);
+    producerSem = new Semaphore("Producer", QUEUE_SIZE);
 
     for (unsigned i = 0; i < NUM_CONSUMERS; i++) {
       consumerNames[i] = new char [4];
@@ -101,10 +89,8 @@ ThreadTestProdConsSem()
       currentThread->Yield();
 
     // No se llega nunca, pero queda bien ponerlo
-    delete consumerLock;
-    delete producerLock;
-    delete consumeCond;
-    delete produceCond;
+    delete consumerSem;
+    delete producerSem;
     for (unsigned i = 0; i < NUM_CONSUMERS; i++)
       delete consumerNames[i];
 

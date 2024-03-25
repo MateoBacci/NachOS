@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include <string.h>
 
-
 #include "semaphore.hh"
 
 static const unsigned int numThreads = 4; // Cantidad de hilos extra a ejecutar
@@ -19,7 +18,7 @@ static const char *threadNames[numThreads] = { "2nd", "3nd", "4nd", "5nd" };
 static bool threadsDone[numThreads]; // Indica que hilos han terminado la ejecucion
 
 #ifdef SEMAPHORE_TEST
-Semaphore* sem = new Semaphore("semaphore_1", 3);
+Semaphore* sem = new Semaphore("test semaphore", 3);
 #endif
 
 void
@@ -43,7 +42,7 @@ SimpleThread(void *arg_)
         currentThread->Yield();
     }
     
- 
+
     if (strcmp(currentThread->GetName(),"main") != 0) {
       threadsDone[i] = true;
     }

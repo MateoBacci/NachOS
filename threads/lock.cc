@@ -25,7 +25,7 @@ Lock::Lock(const char *debugName)
 {
     name = debugName;
     sem = new Semaphore("SemLock", 1);
-    ownerThread = NULL;
+    ownerThread = nullptr;
 }
 
 Lock::~Lock()
@@ -45,20 +45,20 @@ Lock::Acquire()
     ASSERT(!IsHeldByCurrentThread());
     sem->P();
     ownerThread = currentThread;
-    DEBUG('s',"Thread '%s' adquired lock '%s'\n",currentThread->GetName(), GetName());
+    DEBUG('s',"Thread '%s' acquired lock '%s'\n", currentThread->GetName(), GetName());
 }
 
 void
 Lock::Release()
 {
     ASSERT(IsHeldByCurrentThread());
-    ownerThread = NULL;
+    ownerThread = nullptr;
     sem->V();
-    DEBUG('s',"Thread '%s' released lock '%s'\n",currentThread->GetName(), GetName());
+    DEBUG('s',"Thread '%s' released lock '%s'\n", currentThread->GetName(), GetName());
 }
 
 bool
 Lock::IsHeldByCurrentThread() const
 {
-    return (ownerThread != NULL && currentThread == ownerThread);
+    return currentThread == ownerThread;
 }

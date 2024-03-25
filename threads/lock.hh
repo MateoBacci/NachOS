@@ -60,7 +60,6 @@ private:
     const char *name;
 
     Semaphore* sem;
-
     Thread* ownerThread;
 };
 

@@ -68,7 +68,7 @@ Semaphore::P()
         currentThread->Sleep();
     }
     value--;  // Semaphore available, consume its value.
-
+    DEBUG('s', "Semaphore `%s` signalled with P, value %d\n", GetName(), value);
     interrupt->SetLevel(oldLevel);  // Re-enable interrupts.
 }
 
@@ -88,6 +88,6 @@ Semaphore::V()
         scheduler->ReadyToRun(thread);
     }
     value++;
-
+    DEBUG('s', "Semaphore `%s` signalled with V, value %d\n", GetName(), value);
     interrupt->SetLevel(oldLevel);
 }

@@ -10,7 +10,6 @@
 
 #include <stdio.h>
 
-
 static const unsigned NUM_TURNSTILES = 2;
 static const unsigned ITERATIONS_PER_TURNSTILE = 50;
 static bool done[NUM_TURNSTILES];
@@ -22,11 +21,9 @@ Turnstile(void *n_)
     unsigned *n = (unsigned *) n_;
 
     for (unsigned i = 0; i < ITERATIONS_PER_TURNSTILE; i++) {
-        currentThread->Yield();
-        int temp = count;
-        printf("Turnstile %u yielding with temp=%u.\n", *n, temp);
-        printf("Turnstile %u back with temp=%u.\n", *n, temp);
-        count = temp + 1;
+        printf("Turnstile %u starts with count=%u.\n", *n, count);
+        count = count + 1;
+        printf("Turnstile %u yields with count=%u.\n", *n, count);
         currentThread->Yield();
     }
     printf("Turnstile %u finished. Count is now %u.\n", *n, count);
@@ -38,7 +35,6 @@ ThreadTestGarden()
 {
     //Launch a new thread for each turnstile 
     //(except one that will be run by the main thread)
-
     char **names = new char*[NUM_TURNSTILES];
     unsigned *values = new unsigned[NUM_TURNSTILES];
     for (unsigned i = 0; i < NUM_TURNSTILES; i++) {
@@ -50,7 +46,6 @@ ThreadTestGarden()
         Thread *t = new Thread(names[i]);
         t->Fork(Turnstile, (void *) &(values[i]));
     }
-   
     // Wait until all turnstile threads finish their work.  `Thread::Join` is
     // not implemented at the beginning, therefore an ad-hoc workaround is
     // applied here.
@@ -65,8 +60,8 @@ ThreadTestGarden()
 
     // Free all the memory
     for (unsigned i = 0; i < NUM_TURNSTILES; i++) {
-	delete[] names[i];
+      delete [] names[i];
     }
-    delete []values;
-    delete []names;
+    delete [] names;
+    delete [] values;
 }
